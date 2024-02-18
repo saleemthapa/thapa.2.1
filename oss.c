@@ -66,10 +66,16 @@ void launchWorkerProcess(struct PCB *process_table, struct Clock *sys_clock) {
         exit(EXIT_FAILURE);
     } else if (pid == 0) {
         // Child process
-
+/*
         // Execute the worker program
-        execl("worker", "worker", NULL); // Assuming the worker program is named "worker"
-
+        execl("worker", "worker",5,100000, NULL); //  the worker program is named "worker"
+*/
+	 // Execute the worker program
+        char arg1[20];  // Assuming the maximum length of your integers is 20 characters
+        char arg2[20];
+        sprintf(arg1, "%d", 5);
+        sprintf(arg2, "%d", 100000);
+        execl("worker", "worker", arg1, arg2, NULL); //  the worker program is named "worker"
         // If execl returns, an error occurred
         perror("execl");
         exit(EXIT_FAILURE);
@@ -82,16 +88,12 @@ void launchWorkerProcess(struct PCB *process_table, struct Clock *sys_clock) {
         process_table[i].startSeconds = sys_clock->seconds;
         process_table[i].startNano = sys_clock->nanoseconds;
 
-        printf("Launched new worker process with PID %d.\n", pid);
-	printf("Process Table Entry %d: Occupied: 1, PID: %d, StartS: %d, StartN: %d\n",
-               i, process_table[i].pid, process_table[i].startSeconds, process_table[i].startNano);
-    
-    }
+	}
 }
 
 int main(int argc, char *argv[]) {
     int process = 3; // Default value, replace with your desired value
-    int interval = 200; // Default value, replace with your desired value
+    int interval = 200; // Default value, replace with your desired value	
 
     // Parse command line options using getopt
     int opt;
@@ -144,7 +146,7 @@ int main(int argc, char *argv[]) {
     initialize_clock(sys_clock);
 
     // Print message indicating successful initialization
-    printf("Successfully initialized shared memory for sys_clock\n");
+   // printf("Successfully initialized shared memory for sys_clock\n");
 
     // Initialize shared memory for process table
     int shmid_process_table = shmget(SHM_KEY_PROCESS_TABLE, SHM_SIZE_PROCESS_TABLE, IPC_CREAT | 0666);
@@ -169,8 +171,9 @@ int main(int argc, char *argv[]) {
     }
 
     // Print message indicating successful initialization of process table shared memory
-    printf("Successfully initialized shared memory for process table\n");
-
+    //printf("Successfully initialized shared memory for process table\n");
+    // Print process table header
+    printf("Entry    Occupied    PID      StartS   StartN\n");
 
     // Main loop
     bool stillChildrenToLaunch = true;
@@ -189,11 +192,18 @@ int main(int argc, char *argv[]) {
         // Check if the maximum number of simultaneous worker processes has been reached
         if (activeProcesses < process) {
             launchWorkerProcess(process_table, sys_clock);
+	for(int i=0; i<process; i++){
+		if(process_table[i].occupied){
+	        printf("%-9d%-12d%-9d%-9d%-9d\n", i, process_table[i].occupied, 
+               process_table[i].pid, process_table[i].startSeconds, process_table[i].startNano);
+	}
+
+	}
         }
 
         // Sleep for a short period before the next iteration
         usleep(1000); // Sleep for 1 millisecond
-    }
+ }
 
     // Cleanup: Detach from shared memory
     shmdt(sys_clock);
@@ -205,3 +215,4 @@ int main(int argc, char *argv[]) {
 
     return 0;
 }
+

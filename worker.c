@@ -19,7 +19,7 @@ struct Clock {
 void print_initial_info(pid_t pid, pid_t ppid, struct Clock *clock, int term_seconds, int term_nanoseconds) {
     printf("WORKER PID:%d PPID:%d SysClockS: %d SysclockNano: %d TermTimeS: %d TermTimeNano: %d\n",
            pid, ppid, clock->seconds, clock->nanoseconds, term_seconds, term_nanoseconds);
-    printf("--Just Starting\n");
+   
 }
 
 void print_time_passed(pid_t pid, pid_t ppid, struct Clock *clock, int seconds_passed) {
@@ -66,7 +66,7 @@ int main(int argc, char *argv[]) {
 
     // Print initial information
     print_initial_info(pid, ppid, clock, term_seconds, term_nanoseconds);
-
+    printf("--Just Starting\n");
     // Loop until termination time is reached
     int seconds_passed = 0;
     while (clock->seconds < term_seconds || (clock->seconds == term_seconds && clock->nanoseconds < term_nanoseconds)) {
@@ -74,7 +74,6 @@ int main(int argc, char *argv[]) {
             // Print final message and terminate if time has elapsed
             printf("WORKER PID:%d PPID:%d SysClockS: %d SysclockNano: %d TermTimeS: %d TermTimeNano: %d\n",
                    pid, ppid, clock->seconds, clock->nanoseconds, term_seconds, term_nanoseconds);
-            printf("--Terminating\n");
             break;
         }
 
@@ -82,8 +81,9 @@ int main(int argc, char *argv[]) {
         if (clock->seconds > seconds_passed) {
             print_time_passed(pid, ppid, clock, ++seconds_passed);
         }
-    }
 
+    }
+  printf("--Terminating\n");
     // Detach from shared memory
     shmdt(clock);
 
