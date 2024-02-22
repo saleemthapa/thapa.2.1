@@ -47,7 +47,7 @@ void increment_clock(struct Clock *sys_clock, int incrementSeconds, int incremen
 void launchWorkerProcess(struct PCB *process_table, struct Clock *sys_clock) {
     // Find an empty slot in the process table
     int i;
-    for (i = 0; i < MAX_PROCESSES; i++) {
+    for (i = 1; i < MAX_PROCESSES; i++) {
         if (!process_table[i].occupied) {
             break;
         }
@@ -65,11 +65,6 @@ void launchWorkerProcess(struct PCB *process_table, struct Clock *sys_clock) {
         perror("fork");
         exit(EXIT_FAILURE);
     } else if (pid == 0) {
-        // Child process
-/*
-        // Execute the worker program
-        execl("worker", "worker",5,100000, NULL); //  the worker program is named "worker"
-*/
 	 // Execute the worker program
         char arg1[20];  // Assuming the maximum length of your integers is 20 characters
         char arg2[20];
@@ -93,7 +88,7 @@ void launchWorkerProcess(struct PCB *process_table, struct Clock *sys_clock) {
 
 int main(int argc, char *argv[]) {
     int process = 3; // Default value, replace with your desired value
-    int interval = 200; // Default value, replace with your desired value	
+    int interval = 1000; // Default value, replace with your desired value	
 
     // Parse command line options using getopt
     int opt;
@@ -174,10 +169,10 @@ int main(int argc, char *argv[]) {
     //printf("Successfully initialized shared memory for process table\n");
     // Print process table header
     printf("Entry    Occupied    PID      StartS   StartN\n");
-
     // Main loop
     bool stillChildrenToLaunch = true;
-    while (stillChildrenToLaunch) {
+    while (stillChildrenToLaunch) 
+{
         // Increment system clock
         increment_clock(sys_clock, 0, interval * 1000000); // Increment by 'interval' milliseconds
 
@@ -190,20 +185,21 @@ int main(int argc, char *argv[]) {
         }
 
         // Check if the maximum number of simultaneous worker processes has been reached
-        if (activeProcesses < process) {
-            launchWorkerProcess(process_table, sys_clock);
-	for(int i=0; i<process; i++){
-		if(process_table[i].occupied){
-	        printf("%-9d%-12d%-9d%-9d%-9d\n", i, process_table[i].occupied, 
-               process_table[i].pid, process_table[i].startSeconds, process_table[i].startNano);
+        if (activeProcesses < process) 
+	{
+            launchWorkerProcess(process_table, sys_clock); 
+	for( int i = 0; i < process; i++)
+		{
+			 if (process_table[i].occupied)
+			{
+			printf("%-9d%-12d%-9d%-9d%-9d\n", i, process_table[i].occupied, 
+	process_table[i].pid, process_table[i].startSeconds, process_table[i].startNano);
+			}
+		}
 	}
-
-	}
-        }
-
         // Sleep for a short period before the next iteration
         usleep(1000); // Sleep for 1 millisecond
- }
+}
 
     // Cleanup: Detach from shared memory
     shmdt(sys_clock);
@@ -212,7 +208,7 @@ int main(int argc, char *argv[]) {
     // Remove shared memory segments
     shmctl(shmid_sys_clock, IPC_RMID, NULL);
     shmctl(shmid_process_table, IPC_RMID, NULL);
-
+	
     return 0;
 }
 
