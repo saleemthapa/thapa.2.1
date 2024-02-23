@@ -1,0 +1,52 @@
+Project: Adding Our Own Clock
+Description
+This project, "Adding Our Own Clock," demonstrates multi-process management in a Unix environment using C programming. It consists of two main components: oss (the parent process) and worker (the child process). oss is responsible for launching and managing multiple worker processes with specific parameters. The project also includes the implementation of a custom clock.
+
+Components
+oss (Parent Process)
+oss.c is the main program for the parent process.
+Responsible for launching and managing child processes.
+Monitors and controls child processes' execution.
+Manages shared resources such as a custom clock and process table using shared memory and semaphores.
+Ensures orderly termination of child processes.
+worker (Child Process)
+worker.c is the main program for the child process.
+Represents the worker process that performs tasks.
+Executes tasks based on parameters provided by oss.
+Communicates with oss using shared memory and semaphores as needed.
+Exits upon completing its tasks or reaching a time limit.
+Installation Requirements
+Ensure you have GCC (GNU Compiler Collection) installed on your system.
+Compilation
+Open your terminal and navigate to the project directory where oss.c, worker.c, and the Makefile are located.
+
+To compile the project, run the following command:
+make
+This will compile both oss.c and worker.c and generate the oss and worker executables.
+
+Running the Program
+To run the program, use the following command:
+
+./oss
+Example:
+./oss
+This command will launch oss with 3 total children, allow a maximum of 2 children to run simultaneously
+
+Shared Resources
+Shared Memory
+The project uses shared memory to store a custom clock and the process table. This allows communication and data sharing between oss and worker processes.
+Semaphores
+Semaphores are employed to provide synchronization between processes. For example, they are used to control access to shared resources like the custom clock.
+Process Table
+The process table is a data structure that tracks information about child processes, including their status, start times, and process IDs.
+Custom Clock
+A custom clock is implemented to keep track of time within the project. It is updated by oss and utilized by both oss and worker processes to manage time-related operations.
+Cleaning Up
+To remove the compiled executables, use the following command:
+
+make clean
+This will delete the oss and worker executables.
+
+Troubleshooting
+Ensure that the code in oss.c and worker.c is correctly written and that the Makefile is configured properly for the project.
+Adjust system-specific settings such as file permissions to ensure that you can execute the compiled programs.
